@@ -1,7 +1,130 @@
 package com.cnrasili.moviebooking;
 
+import com.cnrasili.moviebooking.exception.AgeLimitException;
+import com.cnrasili.moviebooking.exception.InvalidPNRException;
+import com.cnrasili.moviebooking.exception.SeatOccupiedException;
+import com.cnrasili.moviebooking.model.*;
+import com.cnrasili.moviebooking.service.*;
+import com.cnrasili.moviebooking.util.ConsoleHelper;
+
+import java.util.List;
+
 public class Main {
+    private static final BookingManager bookingManager = new BookingManager();
+    private static final RefundService refundService = new RefundService();
+    private static final PaymentService paymentService = new CreditCardPaymentService();
+
     public static void main(String[] args) {
-        System.out.println("Movie Ticket Booking System Initialized");
+        DataInitializer.loadMockData();
+        showMainMenu();
+    }
+
+    public static void showMainMenu() {
+        while (true) {
+            System.out.println("\n=== MOVIE TICKET SYSTEM ===");
+            System.out.println("1. List Movies & Buy Ticket");
+            System.out.println("2. Cancel Ticket (Refund)");
+            System.out.println("3. Exit");
+
+            int choice = ConsoleHelper.getIntegerInput("Select Option");
+
+            switch (choice) {
+                case 1:
+                    handleTicketBooking();
+                    break;
+                case 2:
+                    handleRefund();
+                    break;
+                case 3:
+                    System.out.println("Exiting system. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        }
+    }
+
+    private static void handleTicketBooking() {
+        System.out.println("\n--- MOVIES IN VISION ---");
+        List<Movie> movies = CinemaSystem.allMovies;
+        for (int i = 0; i < movies.size(); i++) {
+            System.out.println((i + 1) + ". " + movies.get(i));
+        }
+
+        int movieIndex = ConsoleHelper.getIntegerInput("Select Movie") - 1;
+        if (movieIndex < 0 || movieIndex >= movies.size()) {
+            System.out.println("Invalid movie selection.");
+            return;
+        }
+        Movie selectedMovie = movies.get(movieIndex);
+
+        System.out.println("\n--- AVAILABLE SHOWTIMES ---");
+        List<ShowTime> showTimes = CinemaSystem.activeShowTimes;
+        int count = 0;
+        for (int i = 0; i < showTimes.size(); i++) {
+            if (showTimes.get(i).getMovie().equals(selectedMovie)) {
+                System.out.println((i + 1) + ". " + showTimes.get(i));
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            System.out.println("No showtimes available for this movie.");
+            return;
+        }
+
+        int showIndex = ConsoleHelper.getIntegerInput("Select ShowTime") - 1;
+        if (showIndex < 0 || showIndex >= showTimes.size()) {
+            System.out.println("Invalid showtime.");
+            return;
+        }
+        ShowTime selectedShow = showTimes.get(showIndex);
+
+        ConsoleHelper.printSeatMap(selectedShow);
+
+        int row = ConsoleHelper.getIntegerInput("Enter Row");
+        int col = ConsoleHelper.getIntegerInput("Enter Column/Seat No");
+
+        Seat selectedSeat = selectedShow.getSeat(row, col);
+        if (selectedSeat == null) {
+            System.out.println("Invalid seat number.");
+            return;
+        }
+
+        String name = ConsoleHelper.getStringInput("Enter Name");
+        String surname = ConsoleHelper.getStringInput("Enter Surname");
+        String email = ConsoleHelper.getStringInput("Enter Email");
+        int birthYear = ConsoleHelper.getIntegerInput("Enter Birth Year");
+
+        Customer customer = new Customer(name, surname, email, "555-0000", birthYear);
+
+        System.out.println("1. Student (%20)  2. First Session (%10)  3. None");
+        int discountChoice = ConsoleHelper.getIntegerInput("Select Discount");
+
+        PriceStrategy strategy = new StandardPriceStrategy();
+        if (discountChoice == 1) strategy = new StudentStrategy();
+        if (discountChoice == 2) strategy = new FirstSessionStrategy();
+
+        try {
+            Ticket ticket = bookingManager.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService);
+            System.out.println("\n*** BOOKING SUCCESSFUL ***");
+            ticket.printTicketInfo();
+        } catch (SeatOccupiedException | AgeLimitException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void handleRefund() {
+        String pnr = ConsoleHelper.getStringInput("Enter PNR Code to Refund");
+        try {
+            boolean result = refundService.processRefund(pnr);
+            if (result) {
+                System.out.println("Refund processed successfully.");
+            } else {
+                System.out.println("Refund failed. Show has passed.");
+            }
+        } catch (InvalidPNRException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }

@@ -39,4 +39,16 @@ public class Ticket {
     public String getPnrCode() {
         return pnrCode;
     }
+
+    public ShowTime getShowTime() {
+        return showTime;
+    }
+
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public double getFinalPrice() {
+        return finalPrice;
+    }
 }
