@@ -59,26 +59,29 @@ public class Main {
         Movie selectedMovie = movies.get(movieIndex);
 
         System.out.println("\n--- AVAILABLE SHOWTIMES ---");
-        List<ShowTime> showTimes = CinemaSystem.activeShowTimes;
-        int count = 0;
-        for (int i = 0; i < showTimes.size(); i++) {
-            if (showTimes.get(i).getMovie().equals(selectedMovie)) {
-                System.out.println((i + 1) + ". " + showTimes.get(i));
-                count++;
+
+        List<ShowTime> movieShowTimes = new java.util.ArrayList<>();
+        for (ShowTime st : CinemaSystem.activeShowTimes) {
+            if (st.getMovie().equals(selectedMovie)) {
+                movieShowTimes.add(st);
             }
         }
 
-        if (count == 0) {
+        if (movieShowTimes.isEmpty()) {
             System.out.println("No showtimes available for this movie.");
             return;
         }
 
-        int showIndex = ConsoleHelper.getIntegerInput("Select ShowTime") - 1;
-        if (showIndex < 0 || showIndex >= showTimes.size()) {
+        for (int i = 0; i < movieShowTimes.size(); i++) {
+            System.out.println((i + 1) + ". " + movieShowTimes.get(i));
+        }
+
+        int showChoice = ConsoleHelper.getIntegerInput("Select ShowTime");
+        if (showChoice < 1 || showChoice > movieShowTimes.size()) {
             System.out.println("Invalid showtime.");
             return;
         }
-        ShowTime selectedShow = showTimes.get(showIndex);
+        ShowTime selectedShow = movieShowTimes.get(showChoice - 1);
 
         ConsoleHelper.printSeatMap(selectedShow);
 
