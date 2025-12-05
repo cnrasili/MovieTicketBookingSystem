@@ -82,4 +82,23 @@ public class ConsoleHelper {
             System.out.println("Invalid year. Please enter a realistic birth year (1900 - " + currentYear + ").");
         }
     }
+
+    public static String getCardNumberInput(String prompt) {
+        String cardRegex = "^[0-9]{16}$";
+        Pattern pattern = Pattern.compile(cardRegex);
+
+        while (true) {
+            System.out.print(prompt + ": ");
+            String input = scanner.nextLine();
+
+            if (input.equals("0")) {
+                return "0";
+            }
+
+            if (pattern.matcher(input).matches()) {
+                return input;
+            }
+            System.out.println("Invalid card number. Please enter 16 digits (no spaces).");
+        }
+    }
 }

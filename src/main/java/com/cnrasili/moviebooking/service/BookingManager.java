@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class BookingManager {
 
-    public Ticket createTicket(Customer customer, ShowTime showTime, Seat seat, PriceStrategy priceStrategy, PaymentService paymentService)
+    public Ticket createTicket(Customer customer, ShowTime showTime, Seat seat, PriceStrategy priceStrategy, PaymentService paymentService, String cardInfo)
             throws SeatOccupiedException, AgeLimitException {
 
         if (!seat.isAvailable()) {
@@ -35,7 +35,7 @@ public class BookingManager {
 
         double finalPrice = basePrice - totalDiscountAmount;
 
-        boolean paymentSuccess = paymentService.processPayment(finalPrice, "1234-5678");
+        boolean paymentSuccess = paymentService.processPayment(finalPrice, cardInfo);
 
         if (paymentSuccess) {
             seat.reserve();
