@@ -96,9 +96,9 @@ public class Main {
 
         String name = ConsoleHelper.getStringInput("Enter Name");
         String surname = ConsoleHelper.getStringInput("Enter Surname");
-        String email = ConsoleHelper.getStringInput("Enter Email");
-        String phoneNumber = ConsoleHelper.getStringInput("Enter Phone Number");
-        int birthYear = ConsoleHelper.getIntegerInput("Enter Birth Year");
+        String email = ConsoleHelper.getEmailInput("Enter Email");
+        String phoneNumber = ConsoleHelper.getPhoneNumberInput("Enter Phone Number");
+        int birthYear = ConsoleHelper.getBirthYearInput("Enter Birth Year");
 
         Customer customer = new Customer(name, surname, email, phoneNumber, birthYear);
 
