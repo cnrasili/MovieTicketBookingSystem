@@ -36,6 +36,10 @@ public class ShowTime {
         return null;
     }
 
+    public double getStandardPrice() {
+        return movie.calculatePrice() * hall.getPriceMultiplier();
+    }
+
     public Movie getMovie() { return movie; }
     public CinemaHall getHall() { return hall; }
     public List<Seat> getSeats() { return seats; }
@@ -44,6 +48,6 @@ public class ShowTime {
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-        return movie.getTitle() + " (" + movie.getGenre() + ") - " + time.format(formatter) + " @ " + hall.getName();
+        return time.format(formatter) + " @ " + hall.getName() + " (Price: " + getStandardPrice() + " TL)";
     }
 }

@@ -25,6 +25,6 @@ public abstract class Movie {
 
     @Override
     public String toString() {
-        return title + " (" + genre + ") - " + durationMinutes + " min";
+        return title + " [" + ageRating + "] (" + genre + ") - " + durationMinutes + " min";
     }
 }

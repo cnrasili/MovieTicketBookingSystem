@@ -94,16 +94,18 @@ public class Main {
         String name = ConsoleHelper.getStringInput("Enter Name");
         String surname = ConsoleHelper.getStringInput("Enter Surname");
         String email = ConsoleHelper.getStringInput("Enter Email");
+        String phoneNumber = ConsoleHelper.getStringInput("Enter Phone Number");
         int birthYear = ConsoleHelper.getIntegerInput("Enter Birth Year");
 
-        Customer customer = new Customer(name, surname, email, "555-0000", birthYear);
+        Customer customer = new Customer(name, surname, email, phoneNumber, birthYear);
 
-        System.out.println("1. Student (%20)  2. First Session (%10)  3. None");
-        int discountChoice = ConsoleHelper.getIntegerInput("Select Discount");
+        System.out.println("Are you a Student? (1: Yes, 2: No)");
+        int discountChoice = ConsoleHelper.getIntegerInput("Choice");
 
         PriceStrategy strategy = new StandardPriceStrategy();
-        if (discountChoice == 1) strategy = new StudentStrategy();
-        if (discountChoice == 2) strategy = new FirstSessionStrategy();
+        if (discountChoice == 1) {
+            strategy = new StudentStrategy();
+        }
 
         try {
             Ticket ticket = bookingManager.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService);

@@ -9,13 +9,15 @@ public class Ticket {
     private Customer owner;
     private ShowTime showTime;
     private Seat seat;
+    private double originalPrice;
     private double finalPrice;
 
-    public Ticket(String pnrCode, Customer owner, ShowTime showTime, Seat seat, double finalPrice) {
+    public Ticket(String pnrCode, Customer owner, ShowTime showTime, Seat seat, double originalPrice, double finalPrice) {
         this.pnrCode = pnrCode;
         this.owner = owner;
         this.showTime = showTime;
         this.seat = seat;
+        this.originalPrice = originalPrice;
         this.finalPrice = finalPrice;
         this.creationDate = LocalDateTime.now();
     }
@@ -25,30 +27,28 @@ public class Ticket {
         System.out.println("=========================================");
         System.out.println("           MOVIE TICKET (PNR: " + pnrCode + ")");
         System.out.println("=========================================");
-        System.out.println("Movie: " + showTime.getMovie().getTitle());
-        System.out.println("Rating: " + showTime.getMovie().getAgeRating());
-        System.out.println("Time: " + showTime.getTime().format(formatter));
-        System.out.println("Hall: " + showTime.getHall().getName());
-        System.out.println("Seat: Row " + seat.getRow() + " - No " + seat.getNumber());
-        System.out.println("Customer: " + owner.getFullName());
-        System.out.println("Price: " + finalPrice + " TL");
+        System.out.println("Movie    : " + showTime.getMovie().getTitle());
+        System.out.println("Rating   : " + showTime.getMovie().getAgeRating());
+        System.out.println("Time     : " + showTime.getTime().format(formatter));
+        System.out.println("Hall     : " + showTime.getHall().getName());
+        System.out.println("Seat     : " + seat);
+        System.out.println("Customer : " + owner.getFullName());
+        System.out.println("-----------------------------------------");
+
+        if (originalPrice > finalPrice) {
+            System.out.println("Original Price : " + originalPrice + " TL");
+            System.out.println("Discount       : -" + (originalPrice - finalPrice) + " TL");
+            System.out.println("TOTAL PRICE    :  " + finalPrice + " TL");
+        } else {
+            System.out.println("TOTAL PRICE    : " + finalPrice + " TL");
+        }
+
         System.out.println("Date: " + creationDate.format(formatter));
         System.out.println("=========================================");
     }
 
-    public String getPnrCode() {
-        return pnrCode;
-    }
-
-    public ShowTime getShowTime() {
-        return showTime;
-    }
-
-    public Seat getSeat() {
-        return seat;
-    }
-
-    public double getFinalPrice() {
-        return finalPrice;
-    }
+    public String getPnrCode() { return pnrCode; }
+    public ShowTime getShowTime() { return showTime; }
+    public Seat getSeat() { return seat; }
+    public double getFinalPrice() { return finalPrice; }
 }

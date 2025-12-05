@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 public class DataInitializer {
 
     public static void loadMockData() {
-        Movie avatar = new Movie3D("Avatar: The Way of Water", 192, 100.0, Genre.SCI_FI, AgeRating.PLUS_13);
+
+        Movie avatar = new Movie3D("Avatar 2", 192, 100.0, Genre.SCI_FI, AgeRating.PLUS_13);
         Movie titanic = new Movie2D("Titanic", 195, 80.0, Genre.ROMANCE, AgeRating.PLUS_13);
         Movie joker = new Movie2D("Joker", 122, 90.0, Genre.DRAMA, AgeRating.PLUS_18);
         Movie minions = new Movie2D("Minions", 95, 70.0, Genre.COMEDY, AgeRating.GENERAL_AUDIENCE);
@@ -17,22 +18,22 @@ public class DataInitializer {
         CinemaSystem.allMovies.add(minions);
 
         CinemaBranch mainBranch = new CinemaBranch("Grand Pera", "Istanbul", "Beyoglu");
+        CinemaHall imax = new IMAXHall("IMAX Hall", 5, 5);
+        CinemaHall standard = new StandardHall("Standard Hall", 4, 4);
 
-        CinemaHall hall1 = new IMAXHall("Hall 1 (IMAX)", 5, 5);
-        CinemaHall hall2 = new StandardHall("Hall 2", 4, 4);
-
-        mainBranch.addHall(hall1);
-        mainBranch.addHall(hall2);
-
+        mainBranch.addHall(imax);
+        mainBranch.addHall(standard);
         CinemaSystem.branches.add(mainBranch);
 
-        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).withHour(14).withMinute(0);
-        LocalDateTime nextDay = LocalDateTime.now().plusDays(2).withHour(20).withMinute(0);
+        for (Movie movie : CinemaSystem.allMovies) {
+            CinemaSystem.activeShowTimes.add(new ShowTime(
+                    LocalDateTime.now().plusDays(1).withHour(10).withMinute(0), movie, standard));
 
-        ShowTime show1 = new ShowTime(tomorrow, avatar, hall1);
-        ShowTime show2 = new ShowTime(nextDay, joker, hall2);
+            CinemaSystem.activeShowTimes.add(new ShowTime(
+                    LocalDateTime.now().plusDays(1).withHour(14).withMinute(0), movie, imax));
 
-        CinemaSystem.activeShowTimes.add(show1);
-        CinemaSystem.activeShowTimes.add(show2);
+            CinemaSystem.activeShowTimes.add(new ShowTime(
+                    LocalDateTime.now().plusDays(1).withHour(18).withMinute(0), movie, standard));
+        }
     }
 }

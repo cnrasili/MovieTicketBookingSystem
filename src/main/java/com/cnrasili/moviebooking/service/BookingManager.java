@@ -20,27 +20,52 @@ public class BookingManager {
         validateAge(customer, showTime.getMovie());
 
         double basePrice = showTime.getMovie().calculatePrice() * seat.getPriceMultiplier() * showTime.getHall().getPriceMultiplier();
-        double finalPrice = priceStrategy.calculateDiscount(basePrice);
+
+        double totalDiscountAmount = 0.0;
+
+        if (isFirstSession(showTime)) {
+            System.out.println(">> Automatic Discount: First Session Discount Applied (-10%)");
+            totalDiscountAmount += basePrice * 0.10;
+        }
+
+        double priceAfterStrategy = priceStrategy.calculateDiscount(basePrice);
+        double strategyDiscountAmount = basePrice - priceAfterStrategy;
+
+        totalDiscountAmount += strategyDiscountAmount;
+
+        double finalPrice = basePrice - totalDiscountAmount;
 
         boolean paymentSuccess = paymentService.processPayment(finalPrice, "1234-5678");
 
         if (paymentSuccess) {
             seat.reserve();
             String pnr = generatePNR();
-            Ticket ticket = new Ticket(pnr, customer, showTime, seat, finalPrice);
+            Ticket ticket = new Ticket(pnr, customer, showTime, seat, basePrice, finalPrice);
             CinemaSystem.soldTickets.add(ticket);
             return ticket;
         }
         return null;
     }
 
+    private boolean isFirstSession(ShowTime currentShow) {
+        LocalDateTime current = currentShow.getTime();
+        Movie movie = currentShow.getMovie();
+
+        for (ShowTime s : CinemaSystem.activeShowTimes) {
+            if (s.getMovie().equals(movie) && s.getTime().toLocalDate().equals(current.toLocalDate())) {
+                if (s.getTime().isBefore(current)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public boolean cancelTicket(String pnrCode) throws InvalidPNRException {
         Ticket ticket = CinemaSystem.searchTicketByPNR(pnrCode);
-
         if (ticket == null) {
             throw new InvalidPNRException("No ticket found with PNR: " + pnrCode);
         }
-
         CinemaSystem.soldTickets.remove(ticket);
         return true;
     }
@@ -50,15 +75,9 @@ public class BookingManager {
         int age = currentYear - customer.getBirthYear();
         AgeRating rating = movie.getAgeRating();
 
-        if (rating == AgeRating.PLUS_18 && age < 18) {
-            throw new AgeLimitException("Customer age (" + age + ") is strictly below 18.");
-        }
-        if (rating == AgeRating.PLUS_13 && age < 13) {
-            throw new AgeLimitException("Customer age (" + age + ") is strictly below 13.");
-        }
-        if (rating == AgeRating.PLUS_7 && age < 7) {
-            throw new AgeLimitException("Customer age (" + age + ") is strictly below 7.");
-        }
+        if (rating == AgeRating.PLUS_18 && age < 18) throw new AgeLimitException("Customer age (" + age + ") is strictly below 18.");
+        if (rating == AgeRating.PLUS_13 && age < 13) throw new AgeLimitException("Customer age (" + age + ") is strictly below 13.");
+        if (rating == AgeRating.PLUS_7 && age < 7) throw new AgeLimitException("Customer age (" + age + ") is strictly below 7.");
     }
 
     private String generatePNR() {
