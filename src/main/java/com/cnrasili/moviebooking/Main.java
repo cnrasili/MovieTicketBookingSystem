@@ -6,6 +6,7 @@ import com.cnrasili.moviebooking.exception.SeatOccupiedException;
 import com.cnrasili.moviebooking.model.*;
 import com.cnrasili.moviebooking.service.*;
 import com.cnrasili.moviebooking.util.ConsoleHelper;
+import com.cnrasili.moviebooking.exception.PaymentFailedException;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -190,19 +191,13 @@ public class Main {
 
                     try {
                         Ticket ticket = bookingManager.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService, cardNumber);
-                        if (ticket != null) {
-                            System.out.println("\n*** BOOKING SUCCESSFUL ***");
-                            ticket.printTicketInfo();
-                            return;
-                        } else {
-                            System.out.println("Booking failed due to payment error.");
-                        }
-                    } catch (SeatOccupiedException | AgeLimitException e) {
+                        System.out.println("\n*** BOOKING SUCCESSFUL ***");
+                        ticket.printTicketInfo();
+                        return;
+
+                    } catch (SeatOccupiedException | AgeLimitException | PaymentFailedException e) {
                         System.out.println("Error: " + e.getMessage());
-                        if (e instanceof SeatOccupiedException) step = 4;
-                        else if (e instanceof AgeLimitException) step = 2;
                     }
-                    break;
             }
         }
     }

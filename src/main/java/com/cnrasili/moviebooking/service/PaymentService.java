@@ -1,5 +1,6 @@
 package com.cnrasili.moviebooking.service;
+import com.cnrasili.moviebooking.exception.PaymentFailedException;
 
 public interface PaymentService {
-    boolean processPayment(double amount, String cardInfo);
+    void processPayment(double amount, String cardInfo) throws PaymentFailedException;
 }

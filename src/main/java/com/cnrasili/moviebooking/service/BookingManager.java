@@ -2,6 +2,7 @@ package com.cnrasili.moviebooking.service;
 
 import com.cnrasili.moviebooking.exception.AgeLimitException;
 import com.cnrasili.moviebooking.exception.InvalidPNRException;
+import com.cnrasili.moviebooking.exception.PaymentFailedException;
 import com.cnrasili.moviebooking.exception.SeatOccupiedException;
 import com.cnrasili.moviebooking.model.*;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 public class BookingManager {
 
     public Ticket createTicket(Customer customer, ShowTime showTime, Seat seat, PriceStrategy priceStrategy, PaymentService paymentService, String cardInfo)
-            throws SeatOccupiedException, AgeLimitException {
+            throws SeatOccupiedException, AgeLimitException, PaymentFailedException {
 
         if (!seat.isAvailable()) {
             throw new SeatOccupiedException("Seat " + seat.toString() + " is already occupied.");
@@ -35,16 +36,14 @@ public class BookingManager {
 
         double finalPrice = basePrice - totalDiscountAmount;
 
-        boolean paymentSuccess = paymentService.processPayment(finalPrice, cardInfo);
+        paymentService.processPayment(finalPrice, cardInfo);
 
-        if (paymentSuccess) {
-            seat.reserve();
-            String pnr = generatePNR();
-            Ticket ticket = new Ticket(pnr, customer, showTime, seat, basePrice, finalPrice);
-            CinemaSystem.soldTickets.add(ticket);
-            return ticket;
-        }
-        return null;
+        seat.reserve();
+        String pnr = generatePNR();
+        Ticket ticket = new Ticket(pnr, customer, showTime, seat, basePrice, finalPrice);
+        CinemaSystem.soldTickets.add(ticket);
+        return ticket;
+
     }
 
     private boolean isFirstSession(ShowTime currentShow) {
