@@ -182,22 +182,45 @@ public class Main {
                         break;
                     }
 
-                    strategy = (discountChoice == 1) ? new StudentStrategy() : new StandardPriceStrategy();
+                    strategy = new StandardPriceStrategy();
+
+                    if (discountChoice == 1) {
+                        System.out.println("--- STUDENT VERIFICATION ---");
+                        String studentId = ConsoleHelper.getStringInput("Enter Student ID Card No (e.g., 1111) or '0' to Skip");
+
+                        if (!studentId.equals("0")) {
+                            StudentService studentService = new StudentService();
+
+                            if (studentService.validateStudentId(studentId)) {
+                                System.out.println(">> Success: Student ID Verified! Discount will be applied.");
+                                strategy = new StudentStrategy();
+                            } else {
+                                System.out.println(">> Error: Invalid Student ID! Proceeding with Standard Price.");
+                            }
+                        } else {
+                            System.out.println(">> Student verification skipped. Standard price applies.");
+                        }
+                    }
 
                     String cardNumber = ConsoleHelper.getCardNumberInput("Enter Card Number (16 digits) or '0' to Back");
+
                     if (cardNumber.equals("0")) {
                         break;
                     }
 
                     try {
                         Ticket ticket = bookingManager.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService, cardNumber);
+
                         System.out.println("\n*** BOOKING SUCCESSFUL ***");
                         ticket.printTicketInfo();
                         return;
 
                     } catch (SeatOccupiedException | AgeLimitException | PaymentFailedException e) {
                         System.out.println("Error: " + e.getMessage());
+                        if (e instanceof SeatOccupiedException) step = 4;
+                        else if (e instanceof AgeLimitException) step = 2;
                     }
+                    break;
             }
         }
     }
