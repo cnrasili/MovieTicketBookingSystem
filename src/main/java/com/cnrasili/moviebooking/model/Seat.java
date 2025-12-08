@@ -17,7 +17,7 @@ public abstract class Seat {
         this.status = SeatStatus.BOOKED;
     }
 
-    public void cancel() {
+    public void cancelBooking() {
         this.status = SeatStatus.AVAILABLE;
     }
 

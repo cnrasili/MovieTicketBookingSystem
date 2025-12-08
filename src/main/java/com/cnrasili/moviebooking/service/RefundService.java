@@ -17,7 +17,7 @@ public class RefundService {
             return false;
         }
 
-        ticket.getSeat().cancel();
+        ticket.getSeat().cancelBooking();
 
         CinemaSystem.soldTickets.remove(ticket);
 

@@ -31,7 +31,11 @@ public class Ticket {
         System.out.println("Rating   : " + showTime.getMovie().getAgeRating());
         System.out.println("Time     : " + showTime.getTime().format(formatter));
         System.out.println("Hall     : " + showTime.getHall().getName());
-        System.out.println("Seat     : " + seat);
+
+        String seatPrefix = (seat instanceof LoveSeat) ? "L" : "R"; // LoveSeat ise L, değilse R
+        String seatInfo = seatPrefix + seat.getRow() + "-N" + seat.getNumber();
+        System.out.println("Seat     : " + seatInfo);
+
         System.out.println("Customer : " + owner.getFullName());
         System.out.println("-----------------------------------------");
 

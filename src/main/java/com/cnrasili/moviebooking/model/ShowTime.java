@@ -20,9 +20,13 @@ public class ShowTime {
     }
 
     private void initializeSeats() {
-        for (int row = 1; row <= hall.getTotalRows(); row++) {
-            for (int col = 1; col <= hall.getTotalCols(); col++) {
-                seats.add(new StandardSeat(row, col));
+        for (Seat originalSeat : hall.getSeats()) {
+
+            if (originalSeat instanceof LoveSeat) {
+                this.seats.add(new LoveSeat(originalSeat.getRow(), originalSeat.getNumber()));
+            }
+            else {
+                this.seats.add(new StandardSeat(originalSeat.getRow(), originalSeat.getNumber()));
             }
         }
     }

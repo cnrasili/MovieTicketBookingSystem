@@ -10,4 +10,9 @@ public class StandardSeat extends Seat {
     public double getPriceMultiplier() {
         return 1.0;
     }
+
+    @Override
+    public String toString() {
+        return isAvailable() ? "[R" + getRow() + "-" + getNumber() + "]" : "[ X X ]";
+    }
 }
