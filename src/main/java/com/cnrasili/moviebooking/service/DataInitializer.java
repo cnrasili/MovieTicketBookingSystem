@@ -3,8 +3,34 @@ package com.cnrasili.moviebooking.service;
 import com.cnrasili.moviebooking.model.*;
 import java.time.LocalDateTime;
 
+/**
+ * Utility class used to seed the application with initial mock data.
+ * <p>
+ * This class populates the {@link CinemaSystem} with:
+ * <ul>
+ * <li>Movies (2D, 3D)</li>
+ * <li>Cinema Branches and Halls (Standard, IMAX, VIP)</li>
+ * <li>Showtimes linked to specific times and halls</li>
+ * </ul>
+ * It is typically called once at the application startup.
+ * </p>
+ *
+ * @author cnrasili
+ * @version 1.0
+ */
 public class DataInitializer {
 
+    /**
+     * Clears existing data and loads a fresh set of sample data into the system.
+     * <p>
+     * Creates:
+     * <ul>
+     * <li>Movies: Avatar 2, Titanic, Joker, Minions.</li>
+     * <li>Branches: Marmarapark (Istanbul), Capacity (Istanbul).</li>
+     * <li>Showtimes: Scheduled for tomorrow at various hours.</li>
+     * </ul>
+     * </p>
+     */
     public static void loadMockData() {
         CinemaSystem.allMovies.clear();
         CinemaSystem.branches.clear();
@@ -47,6 +73,15 @@ public class DataInitializer {
         addShowTime(tomorrow, 11, 0, avatar, hall2_Std);
     }
 
+    /**
+     * Helper method to create and register a new Showtime.
+     *
+     * @param baseDate The date of the show.
+     * @param hour     The hour of the show.
+     * @param minute   The minute of the show.
+     * @param movie    The movie to be shown.
+     * @param hall     The hall where it will be screened.
+     */
     private static void addShowTime(LocalDateTime baseDate, int hour, int minute, Movie movie, CinemaHall hall) {
         LocalDateTime sessionTime = baseDate.withHour(hour).withMinute(minute);
         ShowTime showTime = new ShowTime(sessionTime, movie, hall);
