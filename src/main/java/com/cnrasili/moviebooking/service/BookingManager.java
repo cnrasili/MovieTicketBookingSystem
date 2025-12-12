@@ -103,15 +103,6 @@ public class BookingManager {
         return true;
     }
 
-    public boolean cancelTicket(String pnrCode) throws InvalidPNRException {
-        Ticket ticket = CinemaSystem.searchTicketByPNR(pnrCode);
-        if (ticket == null) {
-            throw new InvalidPNRException("No ticket found with PNR: " + pnrCode);
-        }
-        CinemaSystem.soldTickets.remove(ticket);
-        return true;
-    }
-
     /**
      * Validates if the customer's age matches the movie's age rating.
      *
