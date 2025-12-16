@@ -8,19 +8,49 @@ import com.cnrasili.moviebooking.service.*;
 import com.cnrasili.moviebooking.util.ConsoleHelper;
 import com.cnrasili.moviebooking.exception.PaymentFailedException;
 import java.util.ArrayList;
-
 import java.util.List;
 
+/**
+ * The entry point of the Cinema Booking Application.
+ * <p>
+ * This class handles the main user interface loop, allowing users to:
+ * <ul>
+ * <li>Browse cinema branches and movies.</li>
+ * <li>Book tickets with dynamic pricing strategies.</li>
+ * <li>Cancel tickets and process refunds.</li>
+ * </ul>
+ * It orchestrates the interaction between the User, {@link BookingManager}, and {@link ConsoleHelper}.
+ * </p>
+ *
+ * @author cnrasili
+ * @version 1.0
+ */
 public class Main {
     private static final BookingManager bookingManager = new BookingManager();
     private static final RefundService refundService = new RefundService();
     private static final PaymentService paymentService = new CreditCardPaymentService();
 
+    /**
+     * Main method that initializes the system and starts the application loop.
+     *
+     * @param args Command line arguments (not used).
+     */
     public static void main(String[] args) {
         DataInitializer.loadMockData();
         showMainMenu();
     }
 
+    /**
+     * Displays the main menu options and routes user input to specific handlers.
+     * <p>
+     * Options:
+     * <ol>
+     * <li>Buy Ticket: Triggers {@link #handleTicketBooking()}.</li>
+     * <li>Refund: Triggers {@link #handleRefund()}.</li>
+     * <li>Exit: Terminates the application.</li>
+     * </ol>
+     * </p>
+     */
     public static void showMainMenu() {
         while (true) {
             System.out.println("\n=== MOVIE TICKET SYSTEM ===");
@@ -46,9 +76,25 @@ public class Main {
         }
     }
 
+    /**
+     * Orchestrates the step-by-step ticket booking process.
+     * <p>
+     * Implements a state-machine logic where 'step' variable controls the flow:
+     * <ul>
+     * <li>Step 1: Select Branch</li>
+     * <li>Step 2: Select Movie</li>
+     * <li>Step 3: Select Showtime (filtered by branch & movie)</li>
+     * <li>Step 4: Select Seat (visual map displayed)</li>
+     * <li>Step 5: Enter Customer Details</li>
+     * <li>Step 6: Payment & Finalization (Student check, Card processing)</li>
+     * </ul>
+     * Allows users to go back to previous steps by entering '0'.
+     * </p>
+     */
     private static void handleTicketBooking() {
         int step = 1;
 
+        // Temporary storage for user selections during the flow
         CinemaBranch selectedBranch = null;
         Movie selectedMovie = null;
         ShowTime selectedShow = null;
@@ -58,7 +104,7 @@ public class Main {
 
         while (step != 0) {
             switch (step) {
-                case 1:
+                case 1: // Branch Selection
                     System.out.println("\n--- SELECT CINEMA BRANCH ---");
                     List<CinemaBranch> branches = CinemaSystem.branches;
                     for (int i = 0; i < branches.size(); i++) {
@@ -78,7 +124,7 @@ public class Main {
                     }
                     break;
 
-                case 2:
+                case 2: // Movie Selection
                     System.out.println("\n--- MOVIES IN VISION ---");
                     List<Movie> movies = CinemaSystem.allMovies;
                     for (int i = 0; i < movies.size(); i++) {
@@ -97,7 +143,7 @@ public class Main {
                     }
                     break;
 
-                case 3:
+                case 3: // Showtime Selection
                     System.out.println("\n--- AVAILABLE SHOWTIMES (" + selectedBranch.getName() + ") ---");
 
                     List<ShowTime> filteredShowTimes = new ArrayList<>();
@@ -131,7 +177,7 @@ public class Main {
                     }
                     break;
 
-                case 4:
+                case 4: // Seat Selection
                     ConsoleHelper.printSeatMap(selectedShow);
                     System.out.println("Enter 0 in Row to Go Back");
 
@@ -154,7 +200,7 @@ public class Main {
                     }
                     break;
 
-                case 5:
+                case 5: // Customer Details
                     System.out.println("\n--- CUSTOMER DETAILS ---");
                     String name = ConsoleHelper.getStringInput("Enter Name (or '0' to Back)");
                     if (name.equals("0")) {
@@ -171,7 +217,7 @@ public class Main {
                     step++;
                     break;
 
-                case 6:
+                case 6: // Payment & Finalization
                     System.out.println("\n--- DISCOUNT & PAYMENT ---");
                     System.out.println("Are you a Student? (1: Yes, 2: No)");
                     System.out.println("0. Go Back");
@@ -213,18 +259,25 @@ public class Main {
 
                         System.out.println("\n*** BOOKING SUCCESSFUL ***");
                         ticket.printTicketInfo();
-                        return;
+                        return; // Booking complete, return to main menu
 
                     } catch (SeatOccupiedException | AgeLimitException | PaymentFailedException e) {
                         System.out.println("Error: " + e.getMessage());
-                        if (e instanceof SeatOccupiedException) step = 4;
-                        else if (e instanceof AgeLimitException) step = 2;
+                        // Handle errors by sending user back to relevant step
+                        if (e instanceof SeatOccupiedException) step = 4; // Reselect seat
+                        else if (e instanceof AgeLimitException) step = 2; // Reselect movie
                     }
                     break;
             }
         }
     }
 
+    /**
+     * Handles the ticket cancellation process.
+     * <p>
+     * Prompts the user for a PNR code and delegates the logic to {@link RefundService}.
+     * </p>
+     */
     private static void handleRefund() {
         String pnr = ConsoleHelper.getStringInput("Enter PNR Code to Refund");
         try {
