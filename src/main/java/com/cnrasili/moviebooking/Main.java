@@ -162,8 +162,14 @@ public class Main {
                     }
 
                     for (int i = 0; i < filteredShowTimes.size(); i++) {
-                        System.out.println((i + 1) + ". " + filteredShowTimes.get(i));
+                        ShowTime st = filteredShowTimes.get(i);
+                        String displayString = (i + 1) + ". " + st.toString();
+                        if (bookingManager.isFirstSession(st)) {
+                            displayString += "(FIRST SESSION)";
+                        }
+                        System.out.println(displayString);
                     }
+
                     System.out.println("0. Go Back (Movie Selection)");
 
                     int showChoice = ConsoleHelper.getIntegerInput("Select ShowTime");

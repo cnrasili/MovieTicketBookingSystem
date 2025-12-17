@@ -2,6 +2,8 @@ package com.cnrasili.moviebooking.service;
 
 import com.cnrasili.moviebooking.model.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class used to seed the application with initial mock data.
@@ -23,11 +25,11 @@ public class DataInitializer {
     /**
      * Clears existing data and loads a fresh set of sample data into the system.
      * <p>
-     * Creates:
+     * Populates the system with:
      * <ul>
-     * <li>Movies: Avatar 2, Titanic, Joker, Minions.</li>
-     * <li>Branches: Marmarapark (Istanbul), Capacity (Istanbul).</li>
-     * <li>Showtimes: Scheduled for tomorrow at various hours.</li>
+     * <li><b>Movies:</b> Avatar 2, Titanic, Joker, Minions.</li>
+     * <li><b>Branches:</b> 4 Major Locations (Marmarapark, Capacity, Akasya, Torun Center).</li>
+     * <li><b>Showtimes:</b> A comprehensive schedule covering the <b>next 5 days</b> (starting tomorrow) to simulate a real-world weekly plan.</li>
      * </ul>
      * </p>
      */
@@ -39,38 +41,55 @@ public class DataInitializer {
 
         Movie avatar = new Movie3D("Avatar 2", 192, 100.0, Genre.SCI_FI, AgeRating.PLUS_13);
         Movie titanic = new Movie2D("Titanic", 195, 80.0, Genre.ROMANCE, AgeRating.PLUS_13);
-        Movie joker = new Movie2D("Joker", 122, 90.0, Genre.DRAMA, AgeRating.PLUS_18);
-        Movie minions = new Movie2D("Minions", 95, 70.0, Genre.COMEDY, AgeRating.GENERAL_AUDIENCE);
+        Movie joker = new Movie2D("Joker", 122, 80.0, Genre.DRAMA, AgeRating.PLUS_18);
+        Movie minions = new Movie2D("Minions", 95, 80.0, Genre.COMEDY, AgeRating.GENERAL_AUDIENCE);
 
         CinemaSystem.allMovies.add(avatar);
         CinemaSystem.allMovies.add(titanic);
         CinemaSystem.allMovies.add(joker);
         CinemaSystem.allMovies.add(minions);
 
-        CinemaBranch branch1 = new CinemaBranch("Paribu Cineverse Marmarapark", "İstanbul", "Esenyurt");
-        CinemaHall hall1_IMAX = new IMAXHall("IMAX Salon", 5, 5);
-        CinemaHall hall1_Std = new StandardHall("Salon 2", 4, 6);
-        branch1.addHall(hall1_IMAX);
-        branch1.addHall(hall1_Std);
-
-        CinemaBranch branch2 = new CinemaBranch("Paribu Cineverse Capacity", "İstanbul", "Bakırköy");
-        CinemaHall hall2_VIP = new VIPHall("Gold Class VIP", 3, 4);
-        CinemaHall hall2_Std = new StandardHall("Salon 3", 5, 5);
-        branch2.addHall(hall2_VIP);
-        branch2.addHall(hall2_Std);
-
-        CinemaSystem.branches.add(branch1);
-        CinemaSystem.branches.add(branch2);
+        List<CinemaBranch> branchList = new ArrayList<>();
+        branchList.add(new CinemaBranch("Paribu Cineverse Marmarapark", "İstanbul", "Esenyurt"));
+        branchList.add(new CinemaBranch("Paribu Cineverse Capacity", "İstanbul", "Bakırköy"));
+        branchList.add(new CinemaBranch("Paribu Cineverse Akasya", "İstanbul", "Üsküdar"));
+        branchList.add(new CinemaBranch("Paribu Cineverse Cevahir", "İstanbul", "Şişli"));
 
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
 
+        for (CinemaBranch branch : branchList) {
 
-        addShowTime(tomorrow, 14, 0, avatar, hall1_IMAX);
-        addShowTime(tomorrow, 20, 0, joker, hall1_Std);
-        addShowTime(tomorrow, 10, 0, minions, hall1_Std);
+            CinemaHall imaxHall = new IMAXHall("IMAX Saloon", 6, 8);
+            CinemaHall vipHall = new VIPHall("Gold Class VIP", 4, 4);
+            CinemaHall stdHall = new StandardHall("Standard Saloon", 5, 6);
 
-        addShowTime(tomorrow, 16, 30, titanic, hall2_VIP);
-        addShowTime(tomorrow, 11, 0, avatar, hall2_Std);
+            branch.addHall(imaxHall);
+            branch.addHall(vipHall);
+            branch.addHall(stdHall);
+
+            CinemaSystem.branches.add(branch);
+
+            for (int i = 0; i < 5; i++) {
+
+                LocalDateTime currentDate = tomorrow.plusDays(i);
+
+                addShowTime(currentDate, 10, 0, avatar, stdHall);
+                addShowTime(currentDate, 14, 0, avatar, vipHall);
+                addShowTime(currentDate, 18, 0, avatar, imaxHall);
+
+                addShowTime(currentDate, 10, 30, titanic, stdHall);
+                addShowTime(currentDate, 14, 30, titanic, vipHall);
+                addShowTime(currentDate, 18, 30, titanic, imaxHall);
+
+                addShowTime(currentDate, 9, 30, minions, stdHall);
+                addShowTime(currentDate, 11, 30, minions, vipHall);
+                addShowTime(currentDate, 13, 30, minions, imaxHall);
+
+                addShowTime(currentDate, 15, 30, joker, stdHall);
+                addShowTime(currentDate, 18, 0, joker, vipHall);
+                addShowTime(currentDate, 20, 30, joker, imaxHall);
+            }
+        }
     }
 
     /**

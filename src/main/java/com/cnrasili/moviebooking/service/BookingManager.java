@@ -89,7 +89,7 @@ public class BookingManager {
      * @param currentShow The showtime to check.
      * @return {@code true} if no earlier showtime exists for the same movie on the same day.
      */
-    private boolean isFirstSession(ShowTime currentShow) {
+    public boolean isFirstSession(ShowTime currentShow) {
         LocalDateTime current = currentShow.getTime();
         Movie movie = currentShow.getMovie();
 

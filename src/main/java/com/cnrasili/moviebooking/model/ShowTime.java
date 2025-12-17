@@ -90,13 +90,13 @@ public class ShowTime {
 
     /**
      * Returns a formatted string describing the session.
-     * Format: "dd-MM-yyyy HH:mm @ HallName (Price: X TL)"
+     * Format: "dd-MM-yyyy HH:mm | HallName (Price: X TL)"
      *
      * @return Formatted session details.
      */
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-        return time.format(formatter) + " @ " + hall.getName() + " (Price: " + getStandardPrice() + " TL)";
+        return time.format(formatter) + " | " + hall.getName() + " (Price: " + getStandardPrice() + " TL)";
     }
 }
