@@ -6,6 +6,8 @@ import com.cnrasili.moviebooking.model.ShowTime;
 import com.cnrasili.moviebooking.model.Ticket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Acts as the centralized in-memory database for the entire application.
@@ -34,6 +36,10 @@ public class CinemaSystem {
 
     /** List of all active showtimes (sessions) available for booking. */
     public static List<ShowTime> activeShowTimes = new ArrayList<>();
+
+    public static Map<String, Double> mockCardDB = new HashMap<>();
+
+    public static List<String> validStudentIds = new ArrayList<>();
 
     /**
      * Searches for a ticket in the system using its PNR code.

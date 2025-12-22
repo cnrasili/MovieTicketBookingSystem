@@ -15,14 +15,6 @@ import java.util.Set;
  */
 public class StudentService {
 
-    private static final Set<String> validStudentIds = new HashSet<>();
-
-    static {
-        validStudentIds.add("ST1001");
-        validStudentIds.add("ST1002");
-        validStudentIds.add("ST1003");
-    }
-
     /**
      * Checks if the provided student ID is valid and active.
      *
@@ -30,6 +22,6 @@ public class StudentService {
      * @return {@code true} if the ID exists in the approved list; {@code false} otherwise.
      */
     public boolean validateStudentId(String studentId) {
-        return studentId != null && validStudentIds.contains(studentId);
+        return studentId != null && CinemaSystem.validStudentIds.contains(studentId);
     }
 }

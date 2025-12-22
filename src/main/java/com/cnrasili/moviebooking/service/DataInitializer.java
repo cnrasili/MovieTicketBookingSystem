@@ -25,6 +25,8 @@ public class DataInitializer {
 
     private static final String MOVIES_FILE = "movies.csv";
     private static final String BRANCHES_FILE = "branches.csv";
+    private static final String CARDS_FILE = "credit_cards.csv";
+    private static final String STUDENT_ID_FILE = "student_ids.csv";
 
     /**
      * Clears existing data and loads a fresh set of sample data from CSV files into the system.
@@ -34,9 +36,13 @@ public class DataInitializer {
         CinemaSystem.branches.clear();
         CinemaSystem.activeShowTimes.clear();
         CinemaSystem.soldTickets.clear();
+        CinemaSystem.mockCardDB.clear();
+        CinemaSystem.validStudentIds.clear();
 
         loadMoviesFromCSV(MOVIES_FILE);
         loadBranchesFromCSV(BRANCHES_FILE);
+        loadCreditCardsFromCSV(CARDS_FILE);
+        loadStudentsFromCSV(STUDENT_ID_FILE);
 
         generateShowTimes();
     }
@@ -78,7 +84,6 @@ public class DataInitializer {
 
                 CinemaSystem.allMovies.add(movie);
             }
-            System.out.println("INFO: Movies loaded successfully from " + filePath);
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("ERROR: Failed to load movies from CSV. " + e.getMessage());
         }
@@ -113,9 +118,40 @@ public class DataInitializer {
 
                 CinemaSystem.branches.add(branch);
             }
-            System.out.println("INFO: Branches loaded successfully from " + filePath);
         } catch (IOException e) {
             System.err.println("ERROR: Failed to load branches from CSV. " + e.getMessage());
+        }
+    }
+
+    private static void loadCreditCardsFromCSV(String filePath) {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] data = line.split(",");
+                if (data.length < 2) continue;
+
+                String cardNum = data[0].trim();
+                double balance = Double.parseDouble(data[1].trim());
+
+                CinemaSystem.mockCardDB.put(cardNum, balance);
+            }
+        } catch (IOException e) {
+            System.err.println("ERROR: Failed to load credit cards. " + e.getMessage());
+        }
+    }
+
+    private static void loadStudentsFromCSV(String filePath) {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String studentId = line.trim();
+                CinemaSystem.validStudentIds.add(studentId);
+            }
+        } catch (IOException e) {
+            System.err.println("ERROR: Failed to load students. " + e.getMessage());
         }
     }
 
@@ -124,12 +160,13 @@ public class DataInitializer {
      */
     private static void generateShowTimes() {
         List<Movie> movies = CinemaSystem.allMovies;
+
         if (movies.isEmpty()) {
             System.out.println("WARNING: No movies loaded. Skipping showtime generation.");
             return;
         }
 
-        Movie m1 = movies.size() > 0 ? movies.get(0) : null;
+        Movie m1 = movies.get(0);
         Movie m2 = movies.size() > 1 ? movies.get(1) : null;
         Movie m3 = movies.size() > 2 ? movies.get(2) : null;
         Movie m4 = movies.size() > 3 ? movies.get(3) : null;

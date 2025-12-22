@@ -1,7 +1,5 @@
 package com.cnrasili.moviebooking.service;
 import com.cnrasili.moviebooking.exception.PaymentFailedException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A simulation implementation of {@link PaymentService} using an in-memory mock database.
@@ -15,8 +13,6 @@ import java.util.Map;
  */
 public class CreditCardPaymentService implements PaymentService {
 
-    private final Map<String, Double> cardDatabase;
-
     /**
      * Constructs the service and initializes the mock database with test data.
      * <p>
@@ -29,11 +25,7 @@ public class CreditCardPaymentService implements PaymentService {
      * </p>
      */
     public CreditCardPaymentService() {
-        cardDatabase = new HashMap<>();
 
-        cardDatabase.put("1111111111111111", 5000.0);
-        cardDatabase.put("2222222222222222", 200.0);
-        cardDatabase.put("3333333333333333", 50.0);
     }
 
     /**
@@ -58,18 +50,18 @@ public class CreditCardPaymentService implements PaymentService {
             throw new PaymentFailedException("Invalid Card Number Format (Must be 16 digits).");
         }
 
-        if (!cardDatabase.containsKey(cardInfo)) {
+        if (!CinemaSystem.mockCardDB.containsKey(cardInfo)) {
             throw new PaymentFailedException("Card not found in bank database.");
         }
 
-        double currentBalance = cardDatabase.get(cardInfo);
+        double currentBalance = CinemaSystem.mockCardDB.get(cardInfo);
 
         if (currentBalance < amount) {
             throw new PaymentFailedException("Insufficient Funds! (Balance: " + currentBalance + " TL, Required: " + amount + " TL)");
         }
 
         double newBalance = currentBalance - amount;
-        cardDatabase.put(cardInfo, newBalance);
+        CinemaSystem.mockCardDB.put(cardInfo, newBalance);
 
         System.out.println(">> Payment Approved! " + amount + " TL deducted.");
         System.out.println(">> Remaining Balance: " + newBalance + " TL");
