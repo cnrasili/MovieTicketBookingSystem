@@ -10,7 +10,7 @@ package com.cnrasili.moviebooking.model;
  * @author cnrasili
  * @version 1.0
  */
-public abstract class Seat {
+public abstract class Seat implements Bookable {
     private int row;
     private int number;
     private SeatStatus status;
@@ -42,6 +42,7 @@ public abstract class Seat {
     /**
      * Reserves the seat by changing its status to {@link SeatStatus#BOOKED}.
      */
+    @Override
     public void reserve() {
         this.status = SeatStatus.BOOKED;
     }
@@ -50,6 +51,7 @@ public abstract class Seat {
      * Cancels the reservation by resetting the status to {@link SeatStatus#AVAILABLE}.
      * This is typically used during refund operations.
      */
+    @Override
     public void cancelBooking() {
         this.status = SeatStatus.AVAILABLE;
     }
@@ -59,6 +61,7 @@ public abstract class Seat {
      *
      * @return {@code true} if the status is AVAILABLE; {@code false} otherwise.
      */
+    @Override
     public boolean isAvailable() {
         return this.status == SeatStatus.AVAILABLE;
     }

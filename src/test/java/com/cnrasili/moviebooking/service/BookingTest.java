@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the {@link BookingManager} class.
+ * Unit tests for the {@link Booking} class.
  * <p>
  * This test suite validates the core business logic of the ticket booking process, covering:
  * <ul>
@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author cnrasili
  * @version 1.0
  */
-class BookingManagerTest {
+class BookingTest {
 
-    private BookingManager bookingManager;
+    private Booking booking;
     private PaymentService paymentService;
     private ShowTime showTime;
     private Seat seat;
@@ -36,14 +36,14 @@ class BookingManagerTest {
     /**
      * Sets up the test environment before each test method execution.
      * <p>
-     * Initializes a fresh instance of {@link BookingManager}, mock payment services,
+     * Initializes a fresh instance of {@link Booking}, mock payment services,
      * and sample data (Movie, Hall, ShowTime, Customer).
      * It also clears the static {@link CinemaSystem} state to ensure test isolation.
      * </p>
      */
     @BeforeEach
     void setUp() {
-        bookingManager = new BookingManager();
+        booking = new Booking();
         paymentService = new CreditCardPaymentService();
         movie = new Movie2D("Test Movie", 120, 100.0, Genre.ACTION, AgeRating.PLUS_13);
         CinemaHall hall = new StandardHall("Test Hall", 5, 5);
@@ -73,7 +73,7 @@ class BookingManagerTest {
         PriceStrategy strategy = new StandardPriceStrategy();
 
         assertDoesNotThrow(() -> {
-            Ticket ticket = bookingManager.createTicket(customer, showTime, seat, strategy, paymentService, richCard);
+            Ticket ticket = booking.createTicket(customer, showTime, seat, strategy, paymentService, richCard);
 
             assertNotNull(ticket, "Ticket should be created (should not be null)");
             assertEquals(SeatStatus.BOOKED, seat.getStatus(), "Seat status should be BOOKED");
@@ -101,7 +101,7 @@ class BookingManagerTest {
         PriceStrategy strategy = new StandardPriceStrategy();
 
         assertDoesNotThrow(() -> {
-            Ticket ticket = bookingManager.createTicket(customer, earlyShow, earlySeat, strategy, paymentService, richCard);
+            Ticket ticket = booking.createTicket(customer, earlyShow, earlySeat, strategy, paymentService, richCard);
 
             assertEquals(90.0, ticket.getFinalPrice(), "First session discount (10%) should be applied correctly");
         });
@@ -116,7 +116,7 @@ class BookingManagerTest {
         PriceStrategy studentStrategy = new StudentStrategy();
 
         assertDoesNotThrow(() -> {
-            Ticket ticket = bookingManager.createTicket(customer, showTime, seat, studentStrategy, paymentService, richCard);
+            Ticket ticket = booking.createTicket(customer, showTime, seat, studentStrategy, paymentService, richCard);
 
             // Expects 20% discount
             assertEquals(70.0, ticket.getFinalPrice(), "Student discount (20%) should be applied correctly");
@@ -134,7 +134,7 @@ class BookingManagerTest {
         PriceStrategy strategy = new StandardPriceStrategy();
 
         assertDoesNotThrow(() -> {
-            Ticket ticket = bookingManager.createTicket(customer, showTime, loveSeat, strategy, paymentService, richCard);
+            Ticket ticket = booking.createTicket(customer, showTime, loveSeat, strategy, paymentService, richCard);
 
             // Base * 2 (LoveSeat)
             assertEquals(180.0, ticket.getFinalPrice(), "LoveSeat price (x2) should be calculated correctly");
@@ -153,7 +153,7 @@ class BookingManagerTest {
         PriceStrategy strategy = new StandardPriceStrategy();
 
         assertThrows(SeatOccupiedException.class, () -> {
-            bookingManager.createTicket(customer, showTime, seat, strategy, paymentService, richCard);
+            booking.createTicket(customer, showTime, seat, strategy, paymentService, richCard);
         });
     }
 
@@ -170,7 +170,7 @@ class BookingManagerTest {
         String richCard = "1111111111111111";
 
         assertThrows(AgeLimitException.class, () -> {
-            bookingManager.createTicket(kid, adultShow, testSeat, new StandardPriceStrategy(), paymentService, richCard);
+            booking.createTicket(kid, adultShow, testSeat, new StandardPriceStrategy(), paymentService, richCard);
         });
     }
 
@@ -183,7 +183,7 @@ class BookingManagerTest {
         PriceStrategy strategy = new StandardPriceStrategy();
 
         assertThrows(PaymentFailedException.class, () -> {
-            bookingManager.createTicket(customer, showTime, seat, strategy, paymentService, poorCard);
+            booking.createTicket(customer, showTime, seat, strategy, paymentService, poorCard);
         });
     }
 
@@ -195,7 +195,7 @@ class BookingManagerTest {
         String unknownCard = "9999999999999999";
 
         assertThrows(PaymentFailedException.class, () -> {
-            bookingManager.createTicket(customer, showTime, seat, new StandardPriceStrategy(), paymentService, unknownCard);
+            booking.createTicket(customer, showTime, seat, new StandardPriceStrategy(), paymentService, unknownCard);
         });
     }
 }

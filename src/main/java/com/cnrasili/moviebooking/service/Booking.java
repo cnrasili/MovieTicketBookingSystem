@@ -1,7 +1,6 @@
 package com.cnrasili.moviebooking.service;
 
 import com.cnrasili.moviebooking.exception.AgeLimitException;
-import com.cnrasili.moviebooking.exception.InvalidPNRException;
 import com.cnrasili.moviebooking.exception.PaymentFailedException;
 import com.cnrasili.moviebooking.exception.SeatOccupiedException;
 import com.cnrasili.moviebooking.model.*;
@@ -24,7 +23,7 @@ import java.util.UUID;
  * @author cnrasili
  * @version 1.0
  */
-public class BookingManager {
+public class Booking {
 
     /**
      * Creates a new ticket for a customer after performing all necessary checks and financial transactions.

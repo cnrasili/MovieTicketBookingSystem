@@ -19,14 +19,14 @@ import java.util.List;
  * <li>Book tickets with dynamic pricing strategies.</li>
  * <li>Cancel tickets and process refunds.</li>
  * </ul>
- * It orchestrates the interaction between the User, {@link BookingManager}, and {@link ConsoleHelper}.
+ * It orchestrates the interaction between the User, {@link Booking}, and {@link ConsoleHelper}.
  * </p>
  *
  * @author cnrasili
  * @version 1.0
  */
 public class Main {
-    private static final BookingManager bookingManager = new BookingManager();
+    private static final Booking BOOKING = new Booking();
     private static final RefundService refundService = new RefundService();
     private static final PaymentService paymentService = new CreditCardPaymentService();
 
@@ -164,7 +164,7 @@ public class Main {
                     for (int i = 0; i < filteredShowTimes.size(); i++) {
                         ShowTime st = filteredShowTimes.get(i);
                         String displayString = (i + 1) + ". " + st.toString();
-                        if (bookingManager.isFirstSession(st)) {
+                        if (BOOKING.isFirstSession(st)) {
                             displayString += "(FIRST SESSION)";
                         }
                         System.out.println(displayString);
@@ -261,7 +261,7 @@ public class Main {
                     }
 
                     try {
-                        Ticket ticket = bookingManager.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService, cardNumber);
+                        Ticket ticket = BOOKING.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService, cardNumber);
 
                         System.out.println("\n*** BOOKING SUCCESSFUL ***");
                         ticket.printTicketInfo();
