@@ -1,37 +1,33 @@
 package com.cnrasili.moviebooking.service;
 
 import com.cnrasili.moviebooking.model.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utility class used to seed the application with initial mock data.
+ * Utility class used to seed the application with initial data.
  * <p>
- * This class populates the {@link CinemaSystem} with:
+ * This class populates the {@link CinemaSystem} by reading data from external CSV files:
  * <ul>
- * <li>Movies (2D, 3D)</li>
- * <li>Cinema Branches and Halls (Standard, IMAX, VIP)</li>
- * <li>Showtimes linked to specific times and halls</li>
+ * <li><b>movies.csv:</b> Loads movie details (Name, Duration, Price, Genre, Rating, Type).</li>
+ * <li><b>branches.csv:</b> Loads cinema branches (Name, City, District).</li>
  * </ul>
- * It is typically called once at the application startup.
+ * It also generates a comprehensive showtime schedule for the next 5 days based on the loaded data.
  * </p>
  *
  * @author cnrasili
- * @version 1.0
+ * @version 1.2
  */
 public class DataInitializer {
 
+    private static final String MOVIES_FILE = "movies.csv";
+    private static final String BRANCHES_FILE = "branches.csv";
+
     /**
-     * Clears existing data and loads a fresh set of sample data into the system.
-     * <p>
-     * Populates the system with:
-     * <ul>
-     * <li><b>Movies:</b> Avatar 2, Titanic, Joker, Minions.</li>
-     * <li><b>Branches:</b> 4 Major Locations (Marmarapark, Capacity, Akasya, Torun Center).</li>
-     * <li><b>Showtimes:</b> A comprehensive schedule covering the <b>next 5 days</b> (starting tomorrow) to simulate a real-world weekly plan.</li>
-     * </ul>
-     * </p>
+     * Clears existing data and loads a fresh set of sample data from CSV files into the system.
      */
     public static void loadMockData() {
         CinemaSystem.allMovies.clear();
@@ -39,68 +35,147 @@ public class DataInitializer {
         CinemaSystem.activeShowTimes.clear();
         CinemaSystem.soldTickets.clear();
 
-        Movie avatar = new Movie3D("Avatar 2", 192, 100.0, Genre.SCI_FI, AgeRating.PLUS_13);
-        Movie titanic = new Movie2D("Titanic", 195, 80.0, Genre.ROMANCE, AgeRating.PLUS_13);
-        Movie joker = new Movie2D("Joker", 122, 80.0, Genre.DRAMA, AgeRating.PLUS_18);
-        Movie minions = new Movie2D("Minions", 95, 80.0, Genre.COMEDY, AgeRating.GENERAL_AUDIENCE);
+        loadMoviesFromCSV(MOVIES_FILE);
+        loadBranchesFromCSV(BRANCHES_FILE);
 
-        CinemaSystem.allMovies.add(avatar);
-        CinemaSystem.allMovies.add(titanic);
-        CinemaSystem.allMovies.add(joker);
-        CinemaSystem.allMovies.add(minions);
+        generateShowTimes();
+    }
 
-        List<CinemaBranch> branchList = new ArrayList<>();
-        branchList.add(new CinemaBranch("Paribu Cineverse Marmarapark", "İstanbul", "Esenyurt"));
-        branchList.add(new CinemaBranch("Paribu Cineverse Capacity", "İstanbul", "Bakırköy"));
-        branchList.add(new CinemaBranch("Paribu Cineverse Akasya", "İstanbul", "Üsküdar"));
-        branchList.add(new CinemaBranch("Paribu Cineverse Cevahir", "İstanbul", "Şişli"));
+    /**
+     * Reads movie data from the specified CSV file and populates the system.
+     * <p>
+     * Expected CSV Format: {@code Name, Duration, Price, Genre, AgeRating, Type}
+     * <br>
+     * <b>Logic:</b> It reads the 'Type' column (index 5) to instantiate either {@link Movie3D} or {@link Movie2D}.
+     * </p>
+     *
+     * @param filePath The path to the CSV file.
+     */
+    private static void loadMoviesFromCSV(String filePath) {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
 
-        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+                String[] data = line.split(",");
 
-        for (CinemaBranch branch : branchList) {
+                if (data.length < 6) continue;
 
-            CinemaHall imaxHall = new IMAXHall("IMAX Saloon", 6, 8);
-            CinemaHall vipHall = new VIPHall("Gold Class VIP", 4, 4);
-            CinemaHall stdHall = new StandardHall("Standard Saloon", 5, 6);
+                String name = data[0].trim();
+                int duration = Integer.parseInt(data[1].trim());
+                double price = Double.parseDouble(data[2].trim());
+                Genre genre = Genre.valueOf(data[3].trim());
+                AgeRating rating = AgeRating.valueOf(data[4].trim());
 
-            branch.addHall(imaxHall);
-            branch.addHall(vipHall);
-            branch.addHall(stdHall);
+                String type = data[5].trim().toUpperCase();
 
-            CinemaSystem.branches.add(branch);
+                Movie movie;
+                if (type.equals("3D")) {
+                    movie = new Movie3D(name, duration, price, genre, rating);
+                } else {
+                    movie = new Movie2D(name, duration, price, genre, rating);
+                }
 
-            for (int i = 0; i < 5; i++) {
-
-                LocalDateTime currentDate = tomorrow.plusDays(i);
-
-                addShowTime(currentDate, 10, 0, avatar, stdHall);
-                addShowTime(currentDate, 14, 0, avatar, vipHall);
-                addShowTime(currentDate, 18, 0, avatar, imaxHall);
-
-                addShowTime(currentDate, 10, 30, titanic, stdHall);
-                addShowTime(currentDate, 14, 30, titanic, vipHall);
-                addShowTime(currentDate, 18, 30, titanic, imaxHall);
-
-                addShowTime(currentDate, 9, 30, minions, stdHall);
-                addShowTime(currentDate, 11, 30, minions, vipHall);
-                addShowTime(currentDate, 13, 30, minions, imaxHall);
-
-                addShowTime(currentDate, 15, 30, joker, stdHall);
-                addShowTime(currentDate, 18, 0, joker, vipHall);
-                addShowTime(currentDate, 20, 30, joker, imaxHall);
+                CinemaSystem.allMovies.add(movie);
             }
+            System.out.println("INFO: Movies loaded successfully from " + filePath);
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("ERROR: Failed to load movies from CSV. " + e.getMessage());
         }
     }
 
     /**
-     * Helper method to create and register a new Showtime.
+     * Reads branch data from the specified CSV file and populates the system.
+     * <p>
+     * Expected CSV Format: {@code BranchName, City, District}
+     * </p>
      *
-     * @param baseDate The date of the show.
-     * @param hour     The hour of the show.
-     * @param minute   The minute of the show.
-     * @param movie    The movie to be shown.
-     * @param hall     The hall where it will be screened.
+     * @param filePath The path to the CSV file.
      */
+    private static void loadBranchesFromCSV(String filePath) {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] data = line.split(",");
+                if (data.length < 3) continue;
+
+                String name = data[0].trim();
+                String city = data[1].trim();
+                String district = data[2].trim();
+
+                CinemaBranch branch = new CinemaBranch(name, city, district);
+
+                branch.addHall(new IMAXHall("IMAX Saloon", 6, 8));
+                branch.addHall(new VIPHall("Gold Class VIP", 4, 4));
+                branch.addHall(new StandardHall("Standard Saloon", 5, 6));
+
+                CinemaSystem.branches.add(branch);
+            }
+            System.out.println("INFO: Branches loaded successfully from " + filePath);
+        } catch (IOException e) {
+            System.err.println("ERROR: Failed to load branches from CSV. " + e.getMessage());
+        }
+    }
+
+    /**
+     * Generates showtimes for the next 5 days based on loaded movies and branches.
+     */
+    private static void generateShowTimes() {
+        List<Movie> movies = CinemaSystem.allMovies;
+        if (movies.isEmpty()) {
+            System.out.println("WARNING: No movies loaded. Skipping showtime generation.");
+            return;
+        }
+
+        Movie m1 = movies.size() > 0 ? movies.get(0) : null;
+        Movie m2 = movies.size() > 1 ? movies.get(1) : null;
+        Movie m3 = movies.size() > 2 ? movies.get(2) : null;
+        Movie m4 = movies.size() > 3 ? movies.get(3) : null;
+
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+
+        for (CinemaBranch branch : CinemaSystem.branches) {
+            CinemaHall imaxHall = null;
+            CinemaHall vipHall = null;
+            CinemaHall stdHall = null;
+
+            for (CinemaHall hall : branch.getHalls()) {
+                if (hall instanceof IMAXHall) imaxHall = hall;
+                else if (hall instanceof VIPHall) vipHall = hall;
+                else if (hall instanceof StandardHall) stdHall = hall;
+            }
+
+            if (imaxHall == null || vipHall == null || stdHall == null) continue;
+
+            for (int i = 0; i < 5; i++) {
+                LocalDateTime currentDate = tomorrow.plusDays(i);
+
+                if (m1 != null) {
+                    addShowTime(currentDate, 10, 0, m1, stdHall);
+                    addShowTime(currentDate, 14, 0, m1, vipHall);
+                    addShowTime(currentDate, 18, 0, m1, imaxHall);
+                }
+                if (m2 != null) {
+                    addShowTime(currentDate, 10, 30, m2, stdHall);
+                    addShowTime(currentDate, 14, 30, m2, vipHall);
+                    addShowTime(currentDate, 18, 30, m2, imaxHall);
+                }
+                if (m4 != null) {
+                    addShowTime(currentDate, 9, 30, m4, stdHall);
+                    addShowTime(currentDate, 11, 30, m4, vipHall);
+                    addShowTime(currentDate, 13, 30, m4, imaxHall);
+                }
+                if (m3 != null) {
+                    addShowTime(currentDate, 15, 30, m3, stdHall);
+                    addShowTime(currentDate, 18, 0, m3, vipHall);
+                    addShowTime(currentDate, 20, 30, m3, imaxHall);
+                }
+            }
+        }
+    }
+
     private static void addShowTime(LocalDateTime baseDate, int hour, int minute, Movie movie, CinemaHall hall) {
         LocalDateTime sessionTime = baseDate.withHour(hour).withMinute(minute);
         ShowTime showTime = new ShowTime(sessionTime, movie, hall);

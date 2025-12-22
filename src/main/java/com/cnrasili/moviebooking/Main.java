@@ -26,7 +26,7 @@ import java.util.List;
  * @version 1.0
  */
 public class Main {
-    private static final Booking BOOKING = new Booking();
+    private static final Booking booking = new Booking();
     private static final RefundService refundService = new RefundService();
     private static final PaymentService paymentService = new CreditCardPaymentService();
 
@@ -164,7 +164,7 @@ public class Main {
                     for (int i = 0; i < filteredShowTimes.size(); i++) {
                         ShowTime st = filteredShowTimes.get(i);
                         String displayString = (i + 1) + ". " + st.toString();
-                        if (BOOKING.isFirstSession(st)) {
+                        if (booking.isFirstSession(st)) {
                             displayString += "(FIRST SESSION)";
                         }
                         System.out.println(displayString);
@@ -261,7 +261,7 @@ public class Main {
                     }
 
                     try {
-                        Ticket ticket = BOOKING.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService, cardNumber);
+                        Ticket ticket = booking.createTicket(customer, selectedShow, selectedSeat, strategy, paymentService, cardNumber);
 
                         System.out.println("\n*** BOOKING SUCCESSFUL ***");
                         ticket.printTicketInfo();
