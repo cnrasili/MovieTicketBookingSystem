@@ -9,30 +9,38 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Manages the core business logic for the movie ticket booking system.
+ * Core service class responsible for handling the ticket booking workflow.
  * <p>
- * This class orchestrates the booking flow by:
+ * This class orchestrates the interaction between user input, validation logic, and data storage.
+ * It ensures that a ticket is only created if all business rules are met.
+ * <br>
+ * Key Responsibilities:
  * <ul>
- * <li>Validating seat availability and customer age eligibility.</li>
- * <li>Calculating the final price with dynamic discounts (First Session, Strategy, etc.).</li>
- * <li>Processing payments via the {@link PaymentService}.</li>
- * <li>Generating tickets with unique PNR codes.</li>
+ * <li>Validating seat availability via the {@link com.cnrasili.moviebooking.model.Bookable} interface.</li>
+ * <li>Enforcing age restrictions based on movie ratings.</li>
+ * <li>Calculating complex pricing (Base Price + Multipliers - Discounts).</li>
+ * <li>Processing payments via {@link PaymentService}.</li>
+ * <li>Persisting the successful booking to {@link CinemaSystem#soldTickets}.</li>
  * </ul>
  * </p>
  *
  * @author cnrasili
- * @version 1.0
+ * @version 2.0
  */
 public class Booking {
 
     /**
      * Creates a new ticket for a customer after performing all necessary checks and financial transactions.
      * <p>
-     * <strong>Pricing Logic:</strong>
+     * <strong>Pricing & Booking Logic:</strong>
      * <ol>
-     * <li>Base Price Calculation: (Movie Price * Hall Multiplier * Seat Multiplier).</li>
-     * <li>First Session Discount: -10% if applicable.</li>
-     * <li>Strategy Discount: Deducted based on user type (e.g., Student).</li>
+     * <li>Check if the seat is available.</li>
+     * <li>Validate customer age against the movie's rating.</li>
+     * <li>Calculate Base Price: (Movie Price * Hall Multiplier * Seat Multiplier).</li>
+     * <li>Apply <b>First Session Discount</b> (10%) if applicable.</li>
+     * <li>Apply <b>Strategy Discount</b> (e.g., Student Discount) on top of the base price.</li>
+     * <li>Process payment for the final calculated amount.</li>
+     * <li>Reserve the seat and register the ticket in the system.</li>
      * </ol>
      * </p>
      *
@@ -42,8 +50,8 @@ public class Booking {
      * @param priceStrategy  The pricing strategy to apply (e.g., StudentStrategy).
      * @param paymentService The service used to process the payment.
      * @param cardInfo       The credit card information provided by the user.
-     * @return A valid {@link Ticket} object if the process is successful.
-     * @throws SeatOccupiedException  If the seat is already booked.
+     * @return A valid, registered {@link Ticket} object.
+     * @throws SeatOccupiedException  If the selected seat is already reserved or occupied.
      * @throws AgeLimitException      If the customer does not meet the age requirements.
      * @throws PaymentFailedException If the payment is rejected due to format, balance, or validity.
      */
@@ -84,9 +92,13 @@ public class Booking {
 
     /**
      * Determines if the given showtime is the first session of the day for that specific movie.
+     * <p>
+     * It queries {@link CinemaSystem#activeShowTimes} to check if there are any earlier
+     * sessions for the same movie on the same date.
+     * </p>
      *
      * @param currentShow The showtime to check.
-     * @return {@code true} if no earlier showtime exists for the same movie on the same day.
+     * @return {@code true} if no earlier showtime exists; {@code false} otherwise.
      */
     public boolean isFirstSession(ShowTime currentShow) {
         LocalDateTime current = currentShow.getTime();
@@ -105,9 +117,9 @@ public class Booking {
     /**
      * Validates if the customer's age matches the movie's age rating.
      *
-     * @param customer The customer.
-     * @param movie    The movie.
-     * @throws AgeLimitException If the customer is too young for the movie.
+     * @param customer The customer whose age is being checked.
+     * @param movie    The movie containing the age restriction.
+     * @throws AgeLimitException If the customer is younger than the required age (18, 13, or 7).
      */
     private void validateAge(Customer customer, Movie movie) throws AgeLimitException {
         int currentYear = LocalDateTime.now().getYear();
@@ -119,6 +131,11 @@ public class Booking {
         if (rating == AgeRating.PLUS_7 && age < 7) throw new AgeLimitException("Customer age (" + age + ") is strictly below 7.");
     }
 
+    /**
+     * Generates a unique 8-character Passenger Name Record (PNR) code.
+     *
+     * @return A random alphanumeric string (e.g., "A1B2C3D4").
+     */
     private String generatePNR() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }

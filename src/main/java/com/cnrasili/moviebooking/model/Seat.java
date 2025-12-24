@@ -1,14 +1,21 @@
 package com.cnrasili.moviebooking.model;
 
 /**
- * Abstract base class representing a generic seat within a cinema hall.
+ * Abstract base class representing a seat in a cinema hall.
  * <p>
- * This class serves as the foundation for different seat types (e.g., {@link StandardSeat}, {@link LoveSeat}).
- * It manages the seat's location (row and number) and its current availability status ({@link SeatStatus}).
+ * This class serves as the structural foundation for different seating types (e.g., {@link StandardSeat}, {@link LoveSeat})
+ * and implements the {@link Bookable} interface to handle reservation logic uniformly.
+ * <br>
+ * Responsibilities:
+ * <ul>
+ * <li>Maintaining spatial location (Row/Number).</li>
+ * <li>Tracking availability status via {@link SeatStatus}.</li>
+ * <li>Defining abstract pricing rules via {@code getPriceMultiplier()}.</li>
+ * </ul>
  * </p>
  *
  * @author cnrasili
- * @version 1.0
+ * @version 1.1
  */
 public abstract class Seat implements Bookable {
     private int row;
@@ -40,7 +47,10 @@ public abstract class Seat implements Bookable {
     public abstract double getPriceMultiplier();
 
     /**
-     * Reserves the seat by changing its status to {@link SeatStatus#BOOKED}.
+     * Marks the seat as reserved.
+     * <p>
+     * Implements {@link Bookable#reserve()} by transitioning the internal status to {@link SeatStatus#BOOKED}.
+     * </p>
      */
     @Override
     public void reserve() {
@@ -49,7 +59,9 @@ public abstract class Seat implements Bookable {
 
     /**
      * Cancels the reservation by resetting the status to {@link SeatStatus#AVAILABLE}.
-     * This is typically used during refund operations.
+     * <p>
+     * Implements {@link Bookable#cancelBooking()}. This is typically used during refund operations.
+     * </p>
      */
     @Override
     public void cancelBooking() {
@@ -59,7 +71,7 @@ public abstract class Seat implements Bookable {
     /**
      * Checks if the seat is currently available for booking.
      *
-     * @return {@code true} if the status is AVAILABLE; {@code false} otherwise.
+     * @return {@code true} if the status is {@link SeatStatus#AVAILABLE}; {@code false} otherwise.
      */
     @Override
     public boolean isAvailable() {

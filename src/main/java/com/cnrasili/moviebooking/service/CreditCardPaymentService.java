@@ -1,27 +1,30 @@
 package com.cnrasili.moviebooking.service;
+
 import com.cnrasili.moviebooking.exception.PaymentFailedException;
 
 /**
- * A simulation implementation of {@link PaymentService} using an in-memory mock database.
+ * Implementation of {@link PaymentService} that simulates credit card transactions.
  * <p>
- * This class simulates a bank system where specific credit cards have predefined balances.
- * It validates card formats and checks for sufficient funds before approval.
+ * Unlike a real banking gateway, this service validates transactions against a central mock database
+ * located in {@link CinemaSystem#mockCardDB}.
+ * <br>
+ * It checks for:
+ * <ul>
+ * <li>Card existence (loaded from CSV).</li>
+ * <li>Sufficient balance for the transaction.</li>
+ * </ul>
  * </p>
  *
  * @author cnrasili
- * @version 1.0
+ * @version 1.2
  */
 public class CreditCardPaymentService implements PaymentService {
 
     /**
-     * Constructs the service and initializes the mock database with test data.
+     * Constructs the service instance.
      * <p>
-     * Predefined Cards:
-     * <ul>
-     * <li>1111... -> 5000.0 TL (Rich)</li>
-     * <li>2222... -> 200.0 TL (Standard)</li>
-     * <li>3333... -> 50.0 TL (Poor)</li>
-     * </ul>
+     * Credit card data is loaded from {@code credit_cards.csv} into {@link CinemaSystem}
+     * by the {@link DataInitializer} at application startup.
      * </p>
      */
     public CreditCardPaymentService() {
@@ -29,19 +32,20 @@ public class CreditCardPaymentService implements PaymentService {
     }
 
     /**
-     * Processes a credit card payment.
+     * Processes a credit card payment by validating against the mock database.
      * <p>
      * Validation Steps:
      * <ol>
-     * <li>Format Check: Must be exactly 16 digits.</li>
-     * <li>Existence Check: Must exist in the mock database.</li>
-     * <li>Balance Check: Must have enough balance to cover the amount.</li>
+     * <li><b>Format Check:</b> Must be exactly 16 digits.</li>
+     * <li><b>Existence Check:</b> Queries {@link CinemaSystem#mockCardDB} to see if card exists.</li>
+     * <li><b>Balance Check:</b> Ensures the card has enough funds.</li>
      * </ol>
+     * If successful, the new balance is updated directly in {@link CinemaSystem}.
      * </p>
      *
      * @param amount   The amount to withdraw.
      * @param cardInfo The 16-digit card number.
-     * @throws PaymentFailedException If validation fails or funds are insufficient.
+     * @throws PaymentFailedException If validation fails, card is not found, or funds are insufficient.
      */
     @Override
     public void processPayment(double amount, String cardInfo) throws PaymentFailedException {

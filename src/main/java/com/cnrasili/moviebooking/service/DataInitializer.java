@@ -10,16 +10,18 @@ import java.util.List;
 /**
  * Utility class used to seed the application with initial data.
  * <p>
- * This class populates the {@link CinemaSystem} by reading data from external CSV files:
+ * This class populates the {@link CinemaSystem} by reading data from external CSV files located in the project root:
  * <ul>
  * <li><b>movies.csv:</b> Loads movie details (Name, Duration, Price, Genre, Rating, Type).</li>
  * <li><b>branches.csv:</b> Loads cinema branches (Name, City, District).</li>
+ * <li><b>credit_cards.csv:</b> Loads mock bank data (Card Number, Balance).</li>
+ * <li><b>student_ids.csv:</b> Loads list of valid student IDs for discounts.</li>
  * </ul>
- * It also generates a comprehensive showtime schedule for the next 5 days based on the loaded data.
+ * It also dynamically generates a comprehensive showtime schedule for the next 5 days based on the loaded data.
  * </p>
  *
  * @author cnrasili
- * @version 1.2
+ * @version 2.0
  */
 public class DataInitializer {
 
@@ -30,6 +32,14 @@ public class DataInitializer {
 
     /**
      * Clears existing data and loads a fresh set of sample data from CSV files into the system.
+     * <p>
+     * Execution Order:
+     * <ol>
+     * <li>Clear all system lists/maps.</li>
+     * <li>Load Movies, Branches, Credit Cards, and Student IDs from their respective CSV files.</li>
+     * <li>Generate Showtimes using the loaded movies and branches.</li>
+     * </ol>
+     * </p>
      */
     public static void loadMockData() {
         CinemaSystem.allMovies.clear();
@@ -93,6 +103,8 @@ public class DataInitializer {
      * Reads branch data from the specified CSV file and populates the system.
      * <p>
      * Expected CSV Format: {@code BranchName, City, District}
+     * <br>
+     * Automatically initializes standard halls (IMAX, VIP, Standard) for each loaded branch.
      * </p>
      *
      * @param filePath The path to the CSV file.
@@ -123,6 +135,16 @@ public class DataInitializer {
         }
     }
 
+    /**
+     * Reads credit card data from the specified CSV file and populates the mock banking system.
+     * <p>
+     * Expected CSV Format: {@code CardNumber, Balance}
+     * <br>
+     * Data is loaded into {@link CinemaSystem#mockCardDB}.
+     * </p>
+     *
+     * @param filePath The path to the CSV file.
+     */
     private static void loadCreditCardsFromCSV(String filePath) {
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -141,6 +163,16 @@ public class DataInitializer {
         }
     }
 
+    /**
+     * Reads valid student IDs from the specified CSV file and populates the validation registry.
+     * <p>
+     * Expected CSV Format: {@code StudentID}
+     * <br>
+     * Data is loaded into {@link CinemaSystem#validStudentIds}.
+     * </p>
+     *
+     * @param filePath The path to the CSV file.
+     */
     private static void loadStudentsFromCSV(String filePath) {
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -157,6 +189,10 @@ public class DataInitializer {
 
     /**
      * Generates showtimes for the next 5 days based on loaded movies and branches.
+     * <p>
+     * It assigns specific movies to specific halls and time slots to simulate a realistic schedule.
+     * Requires at least one loaded movie to function correctly.
+     * </p>
      */
     private static void generateShowTimes() {
         List<Movie> movies = CinemaSystem.allMovies;
