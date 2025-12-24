@@ -12,17 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link Booking} class.
  * <p>
- * This test suite validates the core business logic of the ticket booking process, covering:
- * <ul>
- * <li>Successful booking scenarios (Standard, Student, LoveSeat).</li>
- * <li>Dynamic price calculations and discounts.</li>
- * <li>Exception handling (Occupied seats, Age limits, Payment failures).</li>
- * </ul>
- * uses JUnit 5 for assertions.
+ * This test suite validates the core business logic of the ticket booking process.
+ * <br>
+ * <b>Important:</b> Since Unit Tests do not read from CSV files, we manually inject
+ * mock data into {@link CinemaSystem} inside the {@code setUp()} method.
  * </p>
  *
  * @author cnrasili
- * @version 1.0
+ * @version 2.0
  */
 class BookingTest {
 
@@ -36,13 +33,23 @@ class BookingTest {
     /**
      * Sets up the test environment before each test method execution.
      * <p>
-     * Initializes a fresh instance of {@link Booking}, mock payment services,
-     * and sample data (Movie, Hall, ShowTime, Customer).
-     * It also clears the static {@link CinemaSystem} state to ensure test isolation.
+     * 1. Clears the static {@link CinemaSystem} to ensure a clean state.
+     * 2. Injects mock data (Credit Cards, Student IDs) manually.
+     * 3. Initializes required objects (Movie, Hall, Customer).
      * </p>
      */
     @BeforeEach
     void setUp() {
+        CinemaSystem.activeShowTimes.clear();
+        CinemaSystem.soldTickets.clear();
+        CinemaSystem.mockCardDB.clear();
+        CinemaSystem.validStudentIds.clear();
+
+        CinemaSystem.mockCardDB.put("1111111111111111", 5000.0);
+        CinemaSystem.mockCardDB.put("3333333333333333", 50.0);
+
+        CinemaSystem.validStudentIds.add("ST1001");
+
         booking = new Booking();
         paymentService = new CreditCardPaymentService();
         movie = new Movie2D("Test Movie", 120, 100.0, Genre.ACTION, AgeRating.PLUS_13);
@@ -51,8 +58,6 @@ class BookingTest {
         seat = showTime.getSeat(1, 1);
         customer = new Customer("Test", "User", "test@mail.com", "5555555555", 2000);
 
-        // Reset static database for isolation
-        CinemaSystem.activeShowTimes.clear();
         CinemaSystem.activeShowTimes.add(showTime);
     }
 
