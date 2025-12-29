@@ -1,7 +1,6 @@
 package com.cnrasili.moviebooking.util;
 
-import com.cnrasili.moviebooking.model.Seat;
-import com.cnrasili.moviebooking.model.ShowTime;
+import com.cnrasili.moviebooking.model.*;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -27,30 +26,78 @@ public class ConsoleHelper {
     /**
      * Prints the visual seating map of a specific showtime to the console.
      * <p>
-     * Iterates through the hall's rows and columns to display seats.
-     * Available seats are shown with their IDs (e.g., [R1-1]), while booked seats
-     * are masked (e.g., [ X X ]).
+     * Displays a "SCREEN" header and iterates through rows and columns.
+     * Uses formatted output (printf) to align seats perfectly.
+     * <ul>
+     * <li>Standard Seats are shown as 5-character boxes (e.g., [ 1 ] or [ X ]).</li>
+     * <li>LoveSeats are shown as 9-character boxes (e.g., [  1  ] or [ XX ]).</li>
+     * </ul>
      * </p>
      *
      * @param showTime The showtime session whose seat map is to be displayed.
      */
     public static void printSeatMap(ShowTime showTime) {
-        System.out.println("\n--- SCREEN ---");
-        int totalRows = showTime.getHall().getTotalRows();
-        int totalCols = showTime.getHall().getTotalCols();
+        CinemaHall hall = showTime.getHall();
+        int totalRows = hall.getTotalRows();
+        int totalCols = hall.getTotalCols();
+
+        System.out.println("\n      ================ SCREEN =================");
 
         for (int row = 1; row <= totalRows; row++) {
-            System.out.print("Row " + row + ": ");
+
+            System.out.printf("Row %-2d: ", row);
+
             for (int col = 1; col <= totalCols; col++) {
                 Seat seat = showTime.getSeat(row, col);
+
                 if (seat != null) {
-                    System.out.print(seat.toString() + " ");
+
+                    boolean isLoveSeat = seat instanceof LoveSeat;
+                    int width = isLoveSeat ? 9 : 5;
+
+                    String content;
+
+                    if (seat.getStatus() == SeatStatus.BOOKED) {
+                        content = isLoveSeat ? "X X" : "X";
+                    } else {
+                        content = String.valueOf(seat.getNumber());
+                    }
+
+                    String fmt = "[%-" + (width - 2) + "s] ";
+
+                    System.out.printf(fmt, padCenter(content, width - 2));
                 }
             }
             System.out.println();
         }
-        System.out.println("--------------\n");
+        System.out.println("-----------------------------------------");
     }
+
+    /**
+     * Helper method to center a string within a given width.
+     * <p>
+     * Used for aligning seat numbers or status markers inside the visual boxes.
+     * </p>
+     *
+     * @param s     The string to center.
+     * @param width The total width to fill.
+     * @return The padded, centered string.
+     */
+    private static String padCenter(String s, int width) {
+        if (s == null || width <= s.length()) {
+            return s;
+        }
+        StringBuilder sb = new StringBuilder(width);
+        for (int i = 0; i < (width - s.length()) / 2; i++) {
+            sb.append(' ');
+        }
+        sb.append(s);
+        while (sb.length() < width) {
+            sb.append(' ');
+        }
+        return sb.toString();
+    }
+
 
     /**
      * Prompts the user for an integer input and ensures valid entry.

@@ -42,10 +42,16 @@ public class VIPHall extends CinemaHall {
         getSeats().clear();
 
         for (int row = 1; row <= getTotalRows(); row++) {
-            for (int col = 1; col <= getTotalCols(); col++) {
-                if (row == getTotalRows()) {
+
+            if (row == getTotalRows()) {
+                int loveSeatLimit = getTotalCols() / 2;
+
+                for (int col = 1; col <= loveSeatLimit; col++) {
                     getSeats().add(new LoveSeat(row, col));
-                } else {
+                }
+            }
+            else {
+                for (int col = 1; col <= getTotalCols(); col++) {
                     getSeats().add(new StandardSeat(row, col));
                 }
             }
