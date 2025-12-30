@@ -70,7 +70,12 @@ public class Booking {
 
         if (isFirstSession(showTime)) {
             System.out.println(">> Automatic Discount: First Session Discount Applied (-10%)");
-            totalDiscountAmount += basePrice * 0.10;
+
+            PriceStrategy firstSessionStrategy = new FirstSessionStrategy();
+
+            double discountedPrice = firstSessionStrategy.calculateDiscount(basePrice);
+
+            totalDiscountAmount += (basePrice - discountedPrice);
         }
 
         double priceAfterStrategy = priceStrategy.calculateDiscount(basePrice);
