@@ -38,7 +38,7 @@ public class StandardSeat extends Seat {
      * Format:
      * <ul>
      * <li>Available: [R{row}-{number}] (e.g., [R1-1])</li>
-     * <li>Booked: [ X X ]</li>
+     * <li>Booked: [ X ]</li>
      * </ul>
      * </p>
      *
@@ -46,6 +46,6 @@ public class StandardSeat extends Seat {
      */
     @Override
     public String toString() {
-        return isAvailable() ? "[R" + getRow() + "-" + getNumber() + "]" : "[ X X ]";
+        return isAvailable() ? "[R" + getRow() + "-" + getNumber() + "]" : "[ X ]";
     }
 }

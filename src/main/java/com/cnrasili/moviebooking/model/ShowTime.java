@@ -34,7 +34,7 @@ public class ShowTime {
         this.movie = movie;
         this.hall = hall;
         this.seats = new ArrayList<>();
-        initializeSeats();
+        initSeats();
     }
 
     /**
@@ -45,7 +45,7 @@ public class ShowTime {
      * This ensures that {@code seat.reserve()} affects only this ShowTime.
      * </p>
      */
-    private void initializeSeats() {
+    private void initSeats() {
         for (Seat originalSeat : hall.getSeats()) {
 
             if (originalSeat instanceof LoveSeat) {
